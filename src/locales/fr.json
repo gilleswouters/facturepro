@@ -1,0 +1,76 @@
+{
+    "nav": {
+        "login": "Se connecter",
+        "register": "S'inscrire",
+        "profile": "Mon profil",
+        "dashboard": "Mes factures",
+        "logout": "Se déconnecter"
+    },
+    "hero": {
+        "badge": "🇧🇪 Conforme TVA Belge · Gratuit",
+        "title": "Créez vos factures en 2 minutes.",
+        "subtitle": "L'outil de facturation simple pour freelances et petites entreprises en Belgique.",
+        "cta_primary": "Créer ma facture →",
+        "cta_secondary": "Voir les tarifs"
+    },
+    "features": {
+        "title": "Pourquoi choisir {{brand}} ?",
+        "item1": "Conforme à la loi belge",
+        "item2": "Génération PDF instantanée",
+        "item3": "Calcul automatique de la TVA",
+        "item4": "Simple et rapide"
+    },
+    "pricing": {
+        "title": "Des tarifs simples",
+        "free": "Gratuit",
+        "free_desc": "Pour commencer",
+        "pro": "Pro",
+        "pro_desc": "Pour les habitués",
+        "business": "Business",
+        "business_desc": "Pour les pros",
+        "coming_soon": "Bientôt disponible"
+    },
+    "invoice": {
+        "title_word": "FACTURE",
+        "seller_section": "Vos informations",
+        "client_section": "Informations client",
+        "details_section": "Détails de la facture",
+        "company_name": "Nom de la société",
+        "vat_number": "Numéro de TVA",
+        "address": "Adresse complète",
+        "email": "Adresse email",
+        "iban": "IBAN",
+        "billed_to": "FACTURÉ À :",
+        "payment_iban": "Paiement sur le compte : ",
+        "invoice_number": "N° Facture",
+        "issue_date": "Date d'émission",
+        "due_date": "Date d'échéance",
+        "items": "Produits / Services",
+        "description": "Description",
+        "qty": "Qté",
+        "unit_price": "Prix unit.",
+        "vat_rate": "TVA",
+        "subtotal": "Sous-total HT",
+        "add_item": "Ajouter une ligne",
+        "totals_section": "Totaux",
+        "total_ht": "Total HT",
+        "vat_amount": "Montant TVA ({{rate}}%)",
+        "total_ttc": "Total TTC",
+        "notes_section": "Notes et mentions légales",
+        "default_notes": "En cas de retard de paiement, des intérêts au taux légal belge seront dus de plein droit, majorés d'une indemnité forfaitaire de 40€ (loi du 2 août 2002).",
+        "errors": {
+            "invalid_vat": "Format TVA invalide (ex: BE0123456789)",
+            "required": "Ce champ est requis",
+            "invalid_iban": "IBAN invalide"
+        }
+    },
+    "builder": {
+        "preview": "Aperçu du Document",
+        "a4_format": "A4 Format",
+        "download_pdf": "Télécharger le PDF",
+        "watermark": "Créé gratuitement sur {{domain}} — Passez en Pro pour supprimer ce message"
+    },
+    "footer": {
+        "rights": "Tous droits réservés."
+    }
+}

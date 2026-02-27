@@ -1,0 +1,76 @@
+{
+    "nav": {
+        "login": "Inloggen",
+        "register": "Registreren",
+        "profile": "Mijn profiel",
+        "dashboard": "Mijn facturen",
+        "logout": "Uitloggen"
+    },
+    "hero": {
+        "badge": "🇧🇪 Conform Belgische BTW · Gratis",
+        "title": "Maak uw facturen in 2 minuten.",
+        "subtitle": "De eenvoudige facturatietool voor freelancers en kleine bedrijven in België.",
+        "cta_primary": "Maak mijn factuur →",
+        "cta_secondary": "Bekijk prijzen"
+    },
+    "features": {
+        "title": "Waarom kiezen voor {{brand}}?",
+        "item1": "Conform de Belgische wetgeving",
+        "item2": "Directe PDF-generatie",
+        "item3": "Automatische BTW-berekening",
+        "item4": "Eenvoudig en snel"
+    },
+    "pricing": {
+        "title": "Eenvoudige prijzen",
+        "free": "Gratis",
+        "free_desc": "Om te beginnen",
+        "pro": "Pro",
+        "pro_desc": "Voor regelmatige gebruikers",
+        "business": "Business",
+        "business_desc": "Voor professionals",
+        "coming_soon": "Binnenkort beschikbaar"
+    },
+    "invoice": {
+        "title_word": "FACTUUR",
+        "seller_section": "Uw gegevens",
+        "client_section": "Klantgegevens",
+        "details_section": "Factuurgegevens",
+        "company_name": "Bedrijfsnaam",
+        "vat_number": "BTW-nummer",
+        "address": "Volledig adres",
+        "email": "E-mailadres",
+        "iban": "IBAN",
+        "billed_to": "GEFACTUREERD AAN :",
+        "payment_iban": "Betaling op rekening : ",
+        "invoice_number": "Factuurnummer",
+        "issue_date": "Factuurdatum",
+        "due_date": "Vervaldatum",
+        "items": "Producten / Diensten",
+        "description": "Beschrijving",
+        "qty": "Aantal",
+        "unit_price": "Eenheidsprijs",
+        "vat_rate": "BTW",
+        "subtotal": "Subtotaal excl. BTW",
+        "add_item": "Regel toevoegen",
+        "totals_section": "Totalen",
+        "total_ht": "Totaal excl. BTW",
+        "vat_amount": "BTW-bedrag ({{rate}}%)",
+        "total_ttc": "Totaal incl. BTW",
+        "notes_section": "Opmerkingen en wettelijke vermeldingen",
+        "default_notes": "Bij laattijdige betaling zijn van rechtswege interesten verschuldigd aan de wettelijke Belgische rentevoet, vermeerderd met een forfaitaire vergoeding van €40 (wet van 2 augustus 2002).",
+        "errors": {
+            "invalid_vat": "Ongeldig BTW-formaat (bijv: BE0123456789)",
+            "required": "Dit veld is verplicht",
+            "invalid_iban": "Ongeldig IBAN"
+        }
+    },
+    "builder": {
+        "preview": "Documentvoorbeeld",
+        "a4_format": "A4 Formaat",
+        "download_pdf": "PDF downloaden",
+        "watermark": "Gratis aangemaakt op {{domain}} — Upgrade naar Pro om dit te verwijderen"
+    },
+    "footer": {
+        "rights": "Alle rechten voorbehouden."
+    }
+}
