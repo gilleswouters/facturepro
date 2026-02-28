@@ -20,8 +20,13 @@ const Subscription = () => {
         return <Navigate to="/" replace />;
     }
 
-    // Replace this with your actual Lemon Squeezy product checkout URL
-    const LEMON_SQUEEZY_CHECKOUT_URL = "https://facturepro.lemonsqueezy.com/checkout/buy/661fab72-6aec-4044-9879-bc2249229b55";
+    // Use environment variables for the specific language checkout URLs
+    // Fallback to the test URL if the environment variable isn't set
+    const checkoutUrlFR = import.meta.env.VITE_LS_CHECKOUT_URL_FR || "https://facturepro.lemonsqueezy.com/checkout/buy/661fab72-6aec-4044-9879-bc2249229b55";
+    const checkoutUrlNL = import.meta.env.VITE_LS_CHECKOUT_URL_NL || checkoutUrlFR;
+
+    // Pick the correct URL based on the current brand (facturepro vs factuurpro)
+    const LEMON_SQUEEZY_CHECKOUT_URL = brand.id === 'factuurpro' ? checkoutUrlNL : checkoutUrlFR;
 
     const handleCheckout = () => {
         // We pass the user's Supabase ID as custom data to Lemon Squeezy
