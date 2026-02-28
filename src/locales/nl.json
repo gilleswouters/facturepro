@@ -132,5 +132,14 @@
     },
     "footer": {
         "rights": "Alle rechten voorbehouden."
+    },
+    "dashboard_ext": {
+        "avg_payment_delay": "Gemiddelde betalingstermijn",
+        "days": "{{count}} dagen",
+        "no_data": "— dagen",
+        "payment_date_modal_title": "Betalingsdatum?",
+        "payment_date_label": "Datum van ontvangst van de betaling",
+        "cancel": "Annuleren",
+        "confirm": "Bevestigen"
     }
 }

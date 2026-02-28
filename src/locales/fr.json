@@ -132,5 +132,14 @@
     },
     "footer": {
         "rights": "Tous droits réservés."
+    },
+    "dashboard_ext": {
+        "avg_payment_delay": "Délai moyen de paiement",
+        "days": "{{count}} jours",
+        "no_data": "— jours",
+        "payment_date_modal_title": "Date de paiement ?",
+        "payment_date_label": "Date de réception du paiement",
+        "cancel": "Annuler",
+        "confirm": "Confirmer"
     }
 }

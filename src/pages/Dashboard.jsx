@@ -20,6 +20,11 @@ const Dashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
 
+    // Payment Modal State
+    const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+    const [selectedActionInvoice, setSelectedActionInvoice] = useState(null);
+    const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
+
     useEffect(() => {
         const fetchInvoices = async () => {
             if (!user) return;
@@ -128,22 +133,29 @@ const Dashboard = () => {
 
     const togglePaymentStatus = async (invoice) => {
         const isCurrentlyPaid = invoice.status === 'paid';
-        const newStatus = isCurrentlyPaid ? 'pending' : 'paid';
-        const paidAt = isCurrentlyPaid ? null : new Date().toISOString();
 
+        if (!isCurrentlyPaid) {
+            // Intercept and open modal to ask for payment date
+            setSelectedActionInvoice(invoice);
+            setPaymentDate(new Date().toISOString().split('T')[0]);
+            setPaymentModalOpen(true);
+            return;
+        }
+
+        // If it was paid, un-mark it instantly
         setActionLoadingId(invoice.id);
 
         try {
             const { error } = await supabase
                 .from('invoices')
-                .update({ status: newStatus, paid_at: paidAt })
+                .update({ status: 'pending', paid_at: null })
                 .eq('id', invoice.id);
 
             if (error) throw error;
 
             setInvoices(prev => prev.map(inv =>
                 inv.id === invoice.id
-                    ? { ...inv, status: newStatus, paid_at: paidAt }
+                    ? { ...inv, status: 'pending', paid_at: null }
                     : inv
             ));
 
@@ -152,6 +164,36 @@ const Dashboard = () => {
             alert('Erreur lors de la mise à jour du statut.');
         } finally {
             setActionLoadingId(null);
+        }
+    };
+
+    const confirmPayment = async () => {
+        if (!selectedActionInvoice || !paymentDate) return;
+
+        setActionLoadingId(selectedActionInvoice.id);
+        setPaymentModalOpen(false);
+
+        try {
+            const isoDateTime = new Date(paymentDate).toISOString();
+
+            const { error } = await supabase
+                .from('invoices')
+                .update({ status: 'paid', paid_at: isoDateTime })
+                .eq('id', selectedActionInvoice.id);
+
+            if (error) throw error;
+
+            setInvoices(prev => prev.map(inv =>
+                inv.id === selectedActionInvoice.id
+                    ? { ...inv, status: 'paid', paid_at: isoDateTime }
+                    : inv
+            ));
+        } catch (error) {
+            console.error('Error confirming payment:', error);
+            alert('Erreur lors de la sauvegarde de la date de paiement.');
+        } finally {
+            setActionLoadingId(null);
+            setSelectedActionInvoice(null);
         }
     };
 
@@ -224,6 +266,30 @@ const Dashboard = () => {
         }, {})
     ).sort((a, b) => a.sortKey.localeCompare(b.sortKey));
 
+    // Calculate Average Payment Delay
+    const paidInvoicesWithDates = invoices.filter(inv => inv.status === 'paid' && inv.paid_at);
+    let totalDelayDays = 0;
+    let validDelayCount = 0;
+
+    paidInvoicesWithDates.forEach(inv => {
+        const snap = inv.data_snapshot || inv.invoice_data || {};
+        const issueDateStr = snap.details?.issueDate || inv.created_at;
+
+        // Ensure valid date parsing
+        const issueDate = new Date(issueDateStr);
+        const paidDate = new Date(inv.paid_at);
+
+        if (!isNaN(issueDate.getTime()) && !isNaN(paidDate.getTime())) {
+            // Use 0 as minimum diff in case payment is recorded before issue date logically
+            const diffTime = Math.max(0, paidDate - issueDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            totalDelayDays += diffDays;
+            validDelayCount += 1;
+        }
+    });
+
+    const averagePaymentDelay = validDelayCount > 0 ? Math.round(totalDelayDays / validDelayCount) : null;
+
     return (
         <div className="flex min-h-screen flex-col">
             <Navbar />
@@ -251,9 +317,22 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* Revenue Stats */}
-                    {monthlyData.length > 0 && (
-                        <div className="mb-8 rounded-2xl border border-border bg-white shadow-sm p-6">
+                    {/* Dashboard Stats Row */}
+                    <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Average Delay Card */}
+                        <div className="rounded-2xl border border-border bg-white shadow-sm p-6 flex flex-col justify-center">
+                            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                                {t('dashboard_ext.avg_payment_delay')}
+                            </h3>
+                            <div className="text-3xl font-bold text-slate-900">
+                                {averagePaymentDelay !== null
+                                    ? t('dashboard_ext.days', { count: averagePaymentDelay })
+                                    : t('dashboard_ext.no_data')}
+                            </div>
+                        </div>
+
+                        {/* Revenue Stats Chart */}
+                        <div className="rounded-2xl border border-border bg-white shadow-sm p-6 md:col-span-2">
                             <h3 className="text-lg font-bold text-slate-900 mb-6">Revenus (Factures payées)</h3>
                             <div className="h-64 w-full">
                                 <ResponsiveContainer width="100%" height="100%">
@@ -278,7 +357,7 @@ const Dashboard = () => {
                                 </ResponsiveContainer>
                             </div>
                         </div>
-                    )}
+                    </div>
 
                     {/* Filters & Search Bar */}
                     <div className="mb-6 flex flex-col sm:flex-row gap-4">
@@ -412,6 +491,49 @@ const Dashboard = () => {
                     </div>
                 </div>
             </main>
+
+            {/* Payment Modal */}
+            {paymentModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl relative animate-in fade-in zoom-in duration-200">
+                        <button
+                            onClick={() => { setPaymentModalOpen(false); setSelectedActionInvoice(null); }}
+                            className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                        </button>
+
+                        <h3 className="text-lg font-bold text-slate-900 mb-4">{t('dashboard_ext.payment_date_modal_title')}</h3>
+
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-slate-700 mb-1">{t('dashboard_ext.payment_date_label')}</label>
+                            <input
+                                type="date"
+                                value={paymentDate}
+                                onChange={(e) => setPaymentDate(e.target.value)}
+                                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => { setPaymentModalOpen(false); setSelectedActionInvoice(null); }}
+                                className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-50 rounded-lg transition-colors"
+                            >
+                                {t('dashboard_ext.cancel')}
+                            </button>
+                            <button
+                                onClick={confirmPayment}
+                                className="px-4 py-2 bg-brand text-white font-medium rounded-lg hover:bg-brand-dark transition-colors shadow-sm"
+                            >
+                                {t('dashboard_ext.confirm')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <Footer />
         </div>
