@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
-import { formatEUR, parseNumber } from './calculations';
+import { formatEUR, parseNumber, generateStructuredReference } from './calculations';
+import QRCode from 'qrcode';
 
 export const generatePDF = async (invoiceData, totals, isPro = false, brandName, domain, logoUrl = null, brandColor = null, returnType = 'save') => {
     try {
@@ -162,6 +163,15 @@ export const generatePDF = async (invoiceData, totals, isPro = false, brandName,
         doc.setTextColor(15, 23, 42);
         doc.text(invoiceData.details.dueDate || '-', pageWidth - margin, rightYPos, { align: 'right' });
 
+        // Structured Reference
+        doc.setFont('helvetica', 'normal');
+        rightYPos += 5;
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Communication :`, pageWidth - margin - (contentWidth / 2.5), rightYPos);
+        doc.setTextColor(15, 23, 42);
+        const refStr = generateStructuredReference(invoiceData.details.invoiceNumber);
+        doc.text(refStr || '-', pageWidth - margin, rightYPos, { align: 'right' });
+
         // Sync highest Y position
         yPos = Math.max(yPos + 15, rightYPos + 15);
 
@@ -242,12 +252,48 @@ export const generatePDF = async (invoiceData, totals, isPro = false, brandName,
         doc.text('Total TTC', totalsX + 4, totalsY);
         doc.text(formatEUR(totals.grandTotal), totalsX + 76, totalsY, { align: 'right' });
 
-        // --- IBAN Payment info ---
+        // --- IBAN Payment info & SEPA QR Code ---
         doc.setTextColor(15, 23, 42);
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
         if (invoiceData.seller.iban) {
             doc.text(`Paiement sur le compte : ${invoiceData.seller.iban}`, margin, yPos + 5);
+
+            // Generate SEPA EPC QR Code logic (Only for Pro users and if amount > 0)
+            if (isPro && totals.grandTotal > 0 && invoiceData.client.companyName) {
+                try {
+                    // EPC QR Code Standard
+                    // BCD\n002\n1\nSCT\n{BIC}\n{ClientName}\n{IBAN}\nEUR{Amount}\n\n{Reference}\n{Remittance Text}\n
+                    const ebcString = [
+                        'BCD',
+                        '002',
+                        '1',
+                        'SCT',
+                        '', // BIC is optional for domestic, leaving empty
+                        invoiceData.seller.companyName ? invoiceData.seller.companyName.substring(0, 70) : 'Seller',
+                        invoiceData.seller.iban.replace(/\s+/g, ''),
+                        `EUR${totals.grandTotal.toFixed(2)}`,
+                        '',
+                        '',
+                        `Facture ${invoiceData.details.invoiceNumber}`.substring(0, 140),
+                        ''
+                    ].join('\n');
+
+                    const qrDataUrl = await QRCode.toDataURL(ebcString, {
+                        errorCorrectionLevel: 'M',
+                        margin: 1,
+                        width: 100 // Generate large enough, shrink during insert
+                    });
+
+                    doc.setFontSize(8);
+                    doc.setTextColor(100, 116, 139);
+                    doc.text('Scannez pour payer :', margin, yPos + 15);
+                    doc.addImage(qrDataUrl, 'PNG', margin, yPos + 18, 25, 25);
+                    yPos += 30; // Push notes down to accommodate QR code
+                } catch (qrError) {
+                    console.error('Failed to generate SEPA QR Code:', qrError);
+                }
+            }
         }
 
         // --- Notes & Legal ---
