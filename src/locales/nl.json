@@ -4,6 +4,10 @@
         "register": "Registreren",
         "profile": "Mijn profiel",
         "dashboard": "Mijn facturen",
+        "clients": "Mijn Klanten",
+        "products": "Mijn Artikelen",
+        "pro_subscription": "Mijn Pro Abonnement",
+        "upgrade_pro": "Word Pro",
         "logout": "Uitloggen"
     },
     "hero": {

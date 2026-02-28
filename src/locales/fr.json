@@ -4,6 +4,10 @@
         "register": "S'inscrire",
         "profile": "Mon profil",
         "dashboard": "Mes factures",
+        "clients": "Mes Clients",
+        "products": "Mes Articles",
+        "pro_subscription": "Mon Abonnement Pro",
+        "upgrade_pro": "Passer en Pro",
         "logout": "Se déconnecter"
     },
     "hero": {

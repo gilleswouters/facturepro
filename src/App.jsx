@@ -10,8 +10,13 @@ import Subscription from './pages/Subscription';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthModal from './components/Auth/AuthModal';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import brand from './config/brand';
 
 function App() {
+  React.useEffect(() => {
+    document.title = brand.name;
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>

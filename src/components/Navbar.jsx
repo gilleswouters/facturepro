@@ -17,7 +17,7 @@ const Navbar = () => {
             {/* Target Audience Banner */}
             <div className="w-full bg-brand-dark px-4 py-2 text-center text-xs font-medium text-white sm:text-sm">
                 <span className="opacity-90">
-                    Vous êtes en Flandre ? Ga naar{' '}
+                    {brand.crosslinkMessage}
                     <a
                         href={brand.crosslinkUrl}
                         className="underline underline-offset-2 hover:text-brand-light transition-colors font-bold"
@@ -73,10 +73,10 @@ const Navbar = () => {
                                         </Link>
                                         <div className="h-px w-full bg-border"></div>
                                         <Link to="/clients" className="px-4 py-3 text-left text-sm font-medium text-text hover:bg-surface transition-colors">
-                                            Mes Clients
+                                            {t('nav.clients')}
                                         </Link>
                                         <Link to="/products" className="px-4 py-3 text-left text-sm font-medium text-text hover:bg-surface transition-colors">
-                                            Mes Articles
+                                            {t('nav.products')}
                                         </Link>
                                         <div className="h-px w-full bg-border"></div>
                                         <Link to="/profile" className="px-4 py-3 text-left text-sm font-medium text-text hover:bg-surface transition-colors">
@@ -84,7 +84,7 @@ const Navbar = () => {
                                         </Link>
                                         <div className="h-px w-full bg-border"></div>
                                         <Link to="/subscription" className="px-4 py-3 text-left text-sm font-medium text-brand hover:bg-brand/10 transition-colors flex items-center justify-between">
-                                            <span>{profile?.subscription_status === 'pro' ? 'Mon Abonnement Pro' : 'Passer en Pro'}</span>
+                                            <span>{profile?.subscription_status === 'pro' ? t('nav.pro_subscription') : t('nav.upgrade_pro')}</span>
                                             {profile?.subscription_status !== 'pro' && (
                                                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] text-white">!</span>
                                             )}
