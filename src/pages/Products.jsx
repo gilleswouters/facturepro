@@ -58,7 +58,7 @@ const Products = () => {
                     profile_id: user.id,
                     description: formData.description,
                     default_price: parseFloat(formData.default_price) || 0,
-                    default_vat_rate: parseFloat(formData.default_vat_rate) || 21
+                    vat_rate: parseFloat(formData.default_vat_rate) || 21
                 }]);
 
             if (error) throw error;
@@ -165,7 +165,7 @@ const Products = () => {
                                             <tr key={product.id} className="hover:bg-slate-50/50">
                                                 <td className="px-6 py-4 font-medium">{product.description}</td>
                                                 <td className="px-6 py-4 text-slate-600 text-right">{product.default_price.toFixed(2)} €</td>
-                                                <td className="px-6 py-4 text-slate-600 text-right">{product.default_vat_rate}%</td>
+                                                <td className="px-6 py-4 text-slate-600 text-right">{product.vat_rate}%</td>
                                                 <td className="px-6 py-4 text-right">
                                                     <button onClick={() => handleDelete(product.id)} className="text-red-500 hover:text-red-700 font-medium">
                                                         Supprimer

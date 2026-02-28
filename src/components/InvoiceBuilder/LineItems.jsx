@@ -43,15 +43,7 @@ const LineItems = ({ lines, updateLineItem, addLineItem, removeLineItem }) => {
         updateLineItem(id, field, finalValue);
     };
 
-    const handleProductSelect = (id, productId) => {
-        if (!productId) return;
-        const selectedProduct = products.find(p => p.id === productId);
-        if (selectedProduct) {
-            updateLineItem(id, 'description', selectedProduct.description);
-            updateLineItem(id, 'unitPrice', selectedProduct.default_price);
-            updateLineItem(id, 'vatRate', selectedProduct.default_vat_rate);
-        }
-    };
+    // handleProductSelect removed as handled inline by datalist
 
     return (
         <div className="rounded-2xl border border-border bg-white p-6 md:p-8 mt-6">
@@ -79,31 +71,29 @@ const LineItems = ({ lines, updateLineItem, addLineItem, removeLineItem }) => {
                             <label className="text-xs font-semibold text-text uppercase md:hidden">{t('invoice.description')}</label>
                             <div className="flex gap-2">
                                 <input
+                                    list={`saved-products-${line.id}`}
                                     type="text"
                                     value={line.description}
-                                    onChange={(e) => handleLineChange(line.id, 'description', e.target.value)}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        handleLineChange(line.id, 'description', val);
+
+                                        // Auto-fill price and VAT if an exact product name gets matched from datalist typing
+                                        const matchedProc = products.find(p => p.description === val);
+                                        if (matchedProc) {
+                                            updateLineItem(line.id, 'unitPrice', matchedProc.default_price);
+                                            updateLineItem(line.id, 'vatRate', matchedProc.vat_rate); // Make sure to use vat_rate (the corrected column name)
+                                        }
+                                    }}
                                     className="w-full rounded-lg border border-border bg-white md:bg-surface px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand transition-colors"
                                     placeholder="Ex: Prestation web"
                                 />
                                 {user && products.length > 0 && (
-                                    <div className="relative">
-                                        <select
-                                            onChange={(e) => handleProductSelect(line.id, e.target.value)}
-                                            className="w-8 h-full opacity-0 absolute top-0 right-0 cursor-pointer z-10"
-                                            defaultValue=""
-                                            title="Choisir un article enregistré"
-                                        >
-                                            <option value="" disabled>Choisir...</option>
-                                            {products.map(p => (
-                                                <option key={p.id} value={p.id}>{p.description}</option>
-                                            ))}
-                                        </select>
-                                        <div className="h-full flex items-center justify-center bg-slate-100 border border-border rounded-lg px-2 text-slate-500 hover:bg-slate-200 transition-colors cursor-pointer pointer-events-none">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-                                            </svg>
-                                        </div>
-                                    </div>
+                                    <datalist id={`saved-products-${line.id}`}>
+                                        {products.map(p => (
+                                            <option key={p.id} value={p.description} />
+                                        ))}
+                                    </datalist>
                                 )}
                             </div>
                         </div>

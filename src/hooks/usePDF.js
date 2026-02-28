@@ -77,6 +77,7 @@ const usePDF = () => {
             } else if (user) {
                 // Save to database for Pro users
                 try {
+                    // 1. Save invoice history
                     await supabase.from('invoices').insert({
                         profile_id: user.id,
                         invoice_number: invoiceData.details.invoiceNumber || `PRO-${Date.now()}`,
@@ -89,8 +90,53 @@ const usePDF = () => {
                             totals: totals
                         }
                     });
+
+                    // 2. Auto-save client if company name is provided
+                    if (invoiceData.client && invoiceData.client.companyName) {
+                        const { data: existingClients } = await supabase.from('clients')
+                            .select('id')
+                            .eq('profile_id', user.id)
+                            .ilike('company_name', invoiceData.client.companyName)
+                            .limit(1);
+
+                        if (!existingClients || existingClients.length === 0) {
+                            await supabase.from('clients').insert([{
+                                profile_id: user.id,
+                                company_name: invoiceData.client.companyName,
+                                vat_number: invoiceData.client.vatNumber || '',
+                                address: invoiceData.client.address || '',
+                                email: invoiceData.client.email || ''
+                            }]);
+                        }
+                    }
+
+                    // 3. Auto-save products
+                    if (invoiceData.lines && invoiceData.lines.length > 0) {
+                        for (const line of invoiceData.lines) {
+                            if (line.description && line.description.trim() !== '') {
+                                const { data: existingProducts } = await supabase.from('products')
+                                    .select('id')
+                                    .eq('profile_id', user.id)
+                                    .ilike('description', line.description.trim())
+                                    .limit(1);
+
+                                if (!existingProducts || existingProducts.length === 0) {
+                                    // Parse numeric values to handle potential comma inputs before saving
+                                    const parsedPrice = parseFloat(String(line.unitPrice).replace(',', '.')) || 0;
+                                    const parsedVat = parseFloat(line.vatRate) || 0;
+
+                                    await supabase.from('products').insert([{
+                                        profile_id: user.id,
+                                        description: line.description.trim(),
+                                        default_price: parsedPrice,
+                                        vat_rate: parsedVat
+                                    }]);
+                                }
+                            }
+                        }
+                    }
                 } catch (dbError) {
-                    console.error("Failed to save invoice to history", dbError);
+                    console.error("Failed to save to history or catalogue", dbError);
                     // We don't block the download if the save fails, just log it.
                 }
             }

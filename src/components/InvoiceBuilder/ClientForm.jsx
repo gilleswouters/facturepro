@@ -47,24 +47,7 @@ const ClientForm = ({ defaultValues, onChange }) => {
         fetchClients();
     }, [user]);
 
-    // Handle selecting a saved client
-    const handleClientSelect = (e) => {
-        const clientId = e.target.value;
-        if (!clientId) {
-            // Emptied selection - optionally clear form, but usually better to leave as is
-            return;
-        }
-
-        const selectedClient = clients.find(c => c.id === clientId);
-        if (selectedClient) {
-            reset({
-                companyName: selectedClient.company_name || '',
-                vatNumber: selectedClient.vat_number || '',
-                address: selectedClient.address || '',
-                email: selectedClient.email || ''
-            });
-        }
-    };
+    // Removed handleClientSelect as datalist is used now
 
     useEffect(() => {
         const subscription = watch((value) => {
@@ -79,20 +62,6 @@ const ClientForm = ({ defaultValues, onChange }) => {
                 <h2 className="font-serif text-2xl font-bold text-text">
                     {t('invoice.client_section')}
                 </h2>
-                {user && clients.length > 0 && (
-                    <select
-                        onChange={handleClientSelect}
-                        className="rounded-lg border border-border bg-surface px-4 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand cursor-pointer"
-                        defaultValue=""
-                    >
-                        <option value="" disabled>Choisir un client enregistré...</option>
-                        {clients.map(c => (
-                            <option key={c.id} value={c.id}>
-                                {c.company_name}
-                            </option>
-                        ))}
-                    </select>
-                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -100,9 +69,36 @@ const ClientForm = ({ defaultValues, onChange }) => {
                 <div className="col-span-1 md:col-span-2 space-y-2">
                     <label className="text-sm font-semibold text-text uppercase tracking-wider">{t('invoice.company_name')}</label>
                     <input
+                        list="saved-clients"
                         {...register('companyName', { required: t('invoice.errors.required') })}
+                        onChange={(e) => {
+                            // First trigger react-hook-form's native onChange
+                            register('companyName').onChange(e);
+
+                            // Then check if the user selected a known client
+                            const val = e.target.value;
+                            const matchedClient = clients.find(c => c.company_name === val);
+                            if (matchedClient) {
+                                reset({
+                                    companyName: matchedClient.company_name,
+                                    vatNumber: matchedClient.vat_number || '',
+                                    address: matchedClient.address || '',
+                                    email: matchedClient.email || ''
+                                });
+                            }
+                        }}
                         className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand transition-colors"
                     />
+
+                    {/* Datalist for native autocomplete */}
+                    {user && clients.length > 0 && (
+                        <datalist id="saved-clients">
+                            {clients.map(c => (
+                                <option key={c.id} value={c.company_name} />
+                            ))}
+                        </datalist>
+                    )}
+
                     {errors.companyName && <span className="text-xs text-red-500">{errors.companyName.message}</span>}
                 </div>
 

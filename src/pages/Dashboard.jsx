@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { formatEUR } from '../utils/calculations';
+import { generatePDF } from '../utils/pdfGenerator';
+import brand from '../config/brand';
 
 const Dashboard = () => {
     const { t } = useTranslation();
@@ -36,6 +38,24 @@ const Dashboard = () => {
 
         fetchInvoices();
     }, [user]);
+
+    const handleDownload = (invoice) => {
+        if (!invoice.invoice_data) {
+            alert(t('errors.generic'));
+            return;
+        }
+
+        const data = invoice.invoice_data;
+        // Re-generate the PDF using the exact historical snapshot
+        generatePDF(
+            data,
+            data.totals,
+            true, // Always true for saved invoices since only Pro can save them
+            brand.name,
+            brand.domain
+        );
+    };
+
     return (
         <div className="flex min-h-screen flex-col">
             <Navbar />
@@ -94,7 +114,10 @@ const Dashboard = () => {
                                                     <td className="px-6 py-4 text-slate-600">{date}</td>
                                                     <td className="px-6 py-4 text-right font-medium text-slate-900">{formatEUR(total)}</td>
                                                     <td className="px-6 py-4 text-right">
-                                                        <button className="text-brand font-medium hover:underline">
+                                                        <button
+                                                            onClick={() => handleDownload(invoice)}
+                                                            className="text-brand font-medium hover:underline"
+                                                        >
                                                             Télécharger
                                                         </button>
                                                     </td>
