@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import { formatEUR, parseNumber } from './calculations';
 
-export const generatePDF = (invoiceData, totals, isPro = false, brandName, domain) => {
+export const generatePDF = async (invoiceData, totals, isPro = false, brandName, domain, logoUrl = null, brandColor = null) => {
     try {
         const doc = new jsPDF({
             orientation: 'portrait',
@@ -14,19 +14,72 @@ export const generatePDF = (invoiceData, totals, isPro = false, brandName, domai
         const margin = 18; // 18mm margin
         const contentWidth = pageWidth - margin * 2;
 
-        // --- Header Bar ---
-        // Brand Color: #1D4ED8 (rgb: 29, 78, 216)
-        doc.setFillColor(29, 78, 216);
-        doc.rect(0, 0, pageWidth, 28, 'F');
+        // --- Helper for Hex to RGB conversion ---
+        const hexToRgb = (hex) => {
+            if (!hex) return [29, 78, 216]; // Default blue
+            hex = hex.replace(/^#/, '');
+            if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+            const bigint = parseInt(hex, 16);
+            return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+        };
+        const activeColor = hexToRgb(brandColor);
 
-        // Title text inside header
-        doc.setTextColor(255, 255, 255);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(20);
-        doc.text('FACTURE', margin, 18);
+        // --- Header Bar ---
+        doc.setFillColor(activeColor[0], activeColor[1], activeColor[2]);
+        doc.rect(0, 0, pageWidth, 28, 'F');
 
         // Document styling defaults
         doc.setTextColor(15, 23, 42); // slate-900 (--text)
+
+        // --- Title / Logo ---
+        if (logoUrl) {
+            try {
+                // Since logoUrl is base64 from the serverless function OR URL from Supabase 
+                // We use addImage. If it's a URL we technically should load it, which implies generatePDF should be async.
+                // Assuming logo_url passed from usePDF/Dashboard is already a URL string or base64.
+                // If it's an external URL, the image needs to be loaded by jsPDF (which takes base64 ideally, or it tries to fetch but can fail on CORS).
+                // Assuming it's base64 for now, or use JS to fetch and convert to blob here before running.
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                await new Promise((resolve, reject) => {
+                    img.onload = () => resolve();
+                    img.onerror = () => reject(new Error('Image failed to load'));
+                    img.src = logoUrl;
+                });
+
+                // Calculate dimensions to fit in max 50x20 box
+                const maxW = 50;
+                const maxH = 20;
+                let w = img.width;
+                let h = img.height;
+                const ratio = Math.min(maxW / w, maxH / h);
+                w = w * ratio;
+                h = h * ratio;
+
+                // Positioned on the right inside or below header? 
+                // Let's position it top right inside the header, or standalone top right.
+                // If top right, y = 4. Wait, the header background is there. Let's put it at Y=4, X=pageWidth-margin-w.
+                doc.addImage(img, 'PNG', pageWidth - margin - w, 4, w, h);
+
+                // Add "FACTURE" text normally on the left
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(20);
+                doc.text('FACTURE', margin, 18);
+            } catch (e) {
+                console.error("Failed to load PDF logo", e);
+                // Fallback
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(20);
+                doc.text('FACTURE', margin, 18);
+            }
+        } else {
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(20);
+            doc.text('FACTURE', margin, 18);
+        }
 
         // --- Seller Info ---
         doc.setFontSize(11);
@@ -185,7 +238,7 @@ export const generatePDF = (invoiceData, totals, isPro = false, brandName, domai
         totalsY += 8;
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
-        doc.setTextColor(29, 78, 216); // brand blue
+        doc.setTextColor(activeColor[0], activeColor[1], activeColor[2]); // brand custom
         doc.text('Total TTC', totalsX + 4, totalsY);
         doc.text(formatEUR(totals.grandTotal), totalsX + 76, totalsY, { align: 'right' });
 

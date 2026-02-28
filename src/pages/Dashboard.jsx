@@ -52,7 +52,9 @@ const Dashboard = () => {
             data.totals,
             true, // Always true for saved invoices since only Pro can save them
             brand.name,
-            brand.domain
+            brand.domain,
+            data.branding?.logo_url,
+            data.branding?.brand_color
         );
     };
 

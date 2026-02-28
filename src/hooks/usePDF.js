@@ -9,7 +9,7 @@ const FREE_MONTHLY_LIMIT = 5;
 
 const usePDF = () => {
     const { t } = useTranslation();
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState(null);
     const [monthlyCount, setMonthlyCount] = useState(0);
@@ -64,7 +64,10 @@ const usePDF = () => {
                 totals,
                 isPro,
                 brand.name,
-                brand.domain
+                brand.domain,
+                // Pass custom branding only for Pro users
+                isPro ? user?.user_metadata?.logo_url || invoiceData.seller?.logo_url : null, // We will pull this from profile directly via useAuth but here we need to ensure we pass it correctly. Use profile context.
+                isPro ? invoiceData.seller?.brand_color : null
             );
 
             if (!success) {
@@ -87,7 +90,11 @@ const usePDF = () => {
                             details: invoiceData.details,
                             lines: invoiceData.lines,
                             notes: invoiceData.notes,
-                            totals: totals
+                            totals: totals,
+                            branding: {
+                                logo_url: profile?.logo_url || null,
+                                brand_color: profile?.brand_color || null
+                            }
                         }
                     });
 

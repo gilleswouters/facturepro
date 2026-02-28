@@ -25,6 +25,8 @@ create table public.profiles (
   
   -- Settings
   invoice_number_format text default '{YEAR}-{NUM}',
+  logo_url text,
+  brand_color text default '#3B82F6',
   
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
