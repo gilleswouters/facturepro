@@ -68,7 +68,23 @@
         "preview": "Aperçu du Document",
         "a4_format": "A4 Format",
         "download_pdf": "Télécharger le PDF",
-        "watermark": "Créé gratuitement sur {{domain}} — Passez en Pro pour supprimer ce message"
+        "watermark": "Créé gratuitement sur {{domain}} — Passez en Pro pour supprimer ce message",
+        "free_limit_reached": "Limite gratuite atteinte",
+        "free_limit_desc": "Vous avez atteint votre limite de 5 factures gratuites ce mois-ci.",
+        "upgrade_cta": "Passer en Pro",
+        "pdfs_remaining": "{{count}} / 5 PDF gratuits restants ce mois-ci"
+    },
+    "auth": {
+        "signin_title": "Connexion",
+        "signup_title": "Créer un compte",
+        "email": "Adresse email",
+        "password": "Mot de passe",
+        "signin_action": "Se connecter",
+        "signup_action": "S'inscrire",
+        "switch_to_signup": "Pas encore de compte ? S'inscrire",
+        "switch_to_signin": "Déjà un compte ? Se connecter",
+        "error_generic": "Une erreur est survenue.",
+        "loading": "Chargement..."
     },
     "footer": {
         "rights": "Tous droits réservés."

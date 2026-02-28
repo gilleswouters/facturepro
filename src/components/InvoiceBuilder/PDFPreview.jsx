@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import brand from '../../config/brand';
 import { formatEUR, parseNumber } from '../../utils/calculations';
 
-const PDFPreview = ({ invoiceData, totals }) => {
+const PDFPreview = ({ invoiceData, totals, isPro = false }) => {
     const { t } = useTranslation();
 
     // A visual representation of the PDF layout
@@ -90,9 +90,11 @@ const PDFPreview = ({ invoiceData, totals }) => {
                     )}
 
                     {/* Watermark */}
-                    <div className="absolute bottom-4 left-0 right-0 text-center text-slate-300 text-[7px]">
-                        {t('builder.watermark', { domain: brand.domain })}
-                    </div>
+                    {!isPro && (
+                        <div className="absolute bottom-4 left-0 right-0 text-center text-slate-300 text-[7px]">
+                            {t('builder.watermark', { domain: brand.domain })}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -1,13 +1,70 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { validateBEVAT } from '../../utils/validators';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ClientForm = ({ defaultValues, onChange }) => {
     const { t } = useTranslation();
-    const { register, watch, formState: { errors } } = useForm({
+    const { user } = useAuth();
+    const [clients, setClients] = useState([]);
+    const [loadingClients, setLoadingClients] = useState(false);
+
+    const { register, watch, reset, formState: { errors } } = useForm({
         defaultValues
     });
+
+    // Reset form when external defaultValues changes (e.g. from parent state)
+    useEffect(() => {
+        if (defaultValues && defaultValues.companyName !== undefined) {
+            reset(defaultValues, { keepDefaultValues: true });
+        }
+    }, [defaultValues.companyName, defaultValues.vatNumber, defaultValues.address, defaultValues.email, reset]);
+
+    // Fetch saved clients if logged in
+    useEffect(() => {
+        const fetchClients = async () => {
+            if (!user) return;
+            setLoadingClients(true);
+            try {
+                const { data, error } = await supabase
+                    .from('clients')
+                    .select('*')
+                    .eq('profile_id', user.id)
+                    .order('company_name', { ascending: true });
+
+                if (!error && data) {
+                    setClients(data);
+                }
+            } catch (err) {
+                console.error("Error fetching clients:", err);
+            } finally {
+                setLoadingClients(false);
+            }
+        };
+
+        fetchClients();
+    }, [user]);
+
+    // Handle selecting a saved client
+    const handleClientSelect = (e) => {
+        const clientId = e.target.value;
+        if (!clientId) {
+            // Emptied selection - optionally clear form, but usually better to leave as is
+            return;
+        }
+
+        const selectedClient = clients.find(c => c.id === clientId);
+        if (selectedClient) {
+            reset({
+                companyName: selectedClient.company_name || '',
+                vatNumber: selectedClient.vat_number || '',
+                address: selectedClient.address || '',
+                email: selectedClient.email || ''
+            });
+        }
+    };
 
     useEffect(() => {
         const subscription = watch((value) => {
@@ -18,11 +75,24 @@ const ClientForm = ({ defaultValues, onChange }) => {
 
     return (
         <div className="rounded-2xl border border-border bg-white p-6 md:p-8 mt-6">
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <h2 className="font-serif text-2xl font-bold text-text">
                     {t('invoice.client_section')}
                 </h2>
-                {/* Placeholder for "Choose from saved clients" (Phase 2) */}
+                {user && clients.length > 0 && (
+                    <select
+                        onChange={handleClientSelect}
+                        className="rounded-lg border border-border bg-surface px-4 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand cursor-pointer"
+                        defaultValue=""
+                    >
+                        <option value="" disabled>Choisir un client enregistré...</option>
+                        {clients.map(c => (
+                            <option key={c.id} value={c.id}>
+                                {c.company_name}
+                            </option>
+                        ))}
+                    </select>
+                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

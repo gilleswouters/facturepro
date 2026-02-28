@@ -5,9 +5,18 @@ import { validateBEVAT, validateIBAN } from '../../utils/validators';
 
 const SellerForm = ({ defaultValues, onChange }) => {
     const { t } = useTranslation();
-    const { register, watch, formState: { errors } } = useForm({
+    const { register, watch, reset, formState: { errors } } = useForm({
         defaultValues
     });
+
+    // Reset form when defaultValues changes (e.g. profile loaded from Supabase)
+    useEffect(() => {
+        if (defaultValues && defaultValues.companyName !== undefined) {
+            // Only reset if it's the initial load from Supabase (form is currently empty but defaultValues has data)
+            // Or if we are explicitly replacing the entire form data from a saved client
+            reset(defaultValues, { keepDefaultValues: true });
+        }
+    }, [defaultValues.companyName, defaultValues.vatNumber, defaultValues.address, defaultValues.email, defaultValues.iban, reset]);
 
     useEffect(() => {
         const subscription = watch((value) => {

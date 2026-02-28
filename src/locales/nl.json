@@ -68,7 +68,23 @@
         "preview": "Documentvoorbeeld",
         "a4_format": "A4 Formaat",
         "download_pdf": "PDF downloaden",
-        "watermark": "Gratis aangemaakt op {{domain}} — Upgrade naar Pro om dit te verwijderen"
+        "watermark": "Gratis aangemaakt op {{domain}} — Upgrade naar Pro om dit te verwijderen",
+        "free_limit_reached": "Gratis limiet bereikt",
+        "free_limit_desc": "U heeft uw limiet van 5 gratis facturen deze maand bereikt.",
+        "upgrade_cta": "Upgrade naar Pro",
+        "pdfs_remaining": "{{count}} / 5 gratis PDF's over deze maand"
+    },
+    "auth": {
+        "signin_title": "Inloggen",
+        "signup_title": "Account aanmaken",
+        "email": "E-mailadres",
+        "password": "Wachtwoord",
+        "signin_action": "Inloggen",
+        "signup_action": "Registreren",
+        "switch_to_signup": "Nog geen account? Registreren",
+        "switch_to_signin": "Al een account? Inloggen",
+        "error_generic": "Er is een fout opgetreden.",
+        "loading": "Laden..."
     },
     "footer": {
         "rights": "Alle rechten voorbehouden."

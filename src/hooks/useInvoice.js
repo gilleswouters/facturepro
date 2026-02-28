@@ -2,17 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { calcSubtotal, calcTotalVAT, calcGrandTotal } from '../utils/calculations';
 
-const useInvoice = () => {
+const useInvoice = (initialProfile = null) => {
     const { t } = useTranslation();
 
     // Initial shape of our invoice data
     const [invoiceData, setInvoiceData] = useState({
         seller: {
-            companyName: '',
-            vatNumber: '',
-            address: '',
-            email: '',
-            iban: ''
+            companyName: initialProfile?.company_name || '',
+            vatNumber: initialProfile?.vat_number || '',
+            address: initialProfile?.address || '',
+            email: initialProfile?.email || '', // Optional email if available
+            iban: initialProfile?.iban || ''
         },
         client: {
             companyName: '',
@@ -28,8 +28,40 @@ const useInvoice = () => {
         lines: [
             { id: crypto.randomUUID(), description: '', qty: 1, unitPrice: 0, vatRate: 21 }
         ],
-        notes: t('invoice.default_notes')
+        notes: initialProfile?.default_notes !== undefined ? initialProfile.default_notes : t('invoice.default_notes')
     });
+
+    // Update form if profile loads *after* hook initialization
+    // We bind to specific string values rather than the entire `initialProfile` object 
+    // to prevent infinite re-renders when the AuthContext object reference changes.
+    useEffect(() => {
+        if (initialProfile?.id) {
+            setInvoiceData(prev => {
+                // Only overwrite if the current form is completely empty (haven't started typing)
+                if (!prev.seller.companyName && !prev.seller.vatNumber && !prev.seller.address) {
+                    return {
+                        ...prev,
+                        seller: {
+                            ...prev.seller,
+                            companyName: initialProfile.company_name || '',
+                            vatNumber: initialProfile.vat_number || '',
+                            address: initialProfile.address || '',
+                            iban: initialProfile.iban || ''
+                        },
+                        notes: initialProfile.default_notes || prev.notes
+                    };
+                }
+                return prev;
+            });
+        }
+    }, [
+        initialProfile?.id,
+        initialProfile?.company_name,
+        initialProfile?.vat_number,
+        initialProfile?.address,
+        initialProfile?.iban,
+        initialProfile?.default_notes
+    ]);
 
     // Derived totals
     const [totals, setTotals] = useState({ subtotal: 0, vatTotal: 0, grandTotal: 0 });
