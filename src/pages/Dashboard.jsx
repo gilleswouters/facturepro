@@ -14,6 +14,7 @@ const Dashboard = () => {
 
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [actionLoadingId, setActionLoadingId] = useState(null);
 
     useEffect(() => {
         const fetchInvoices = async () => {
@@ -58,6 +59,65 @@ const Dashboard = () => {
         );
     };
 
+    const handleSendEmail = async (invoice) => {
+        const clientEmail = invoice.invoice_data?.client?.email;
+        if (!clientEmail) {
+            alert('Veuillez ajouter une adresse email au client pour envoyer la facture.');
+            return;
+        }
+
+        setActionLoadingId(invoice.id);
+
+        try {
+            const data = invoice.invoice_data;
+            const doc = new (await import('jspdf')).default({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            // We need to pass the doc instance into a modified generatePDF, OR generatePDF needs to return the doc or base64. 
+            // For now, let's use a trick: the existing generatePDF calls doc.save().
+            // Let's refactor generatePDF to accept a returnType parameter. 
+            alert('L\'envoi d\'email sera finalisé après l\'adaptation du générateur PDF pour le format Base64.');
+
+        } catch (error) {
+            console.error('Error sending email:', error);
+            alert('Erreur lors de l\'envoi de l\'email.');
+        } finally {
+            setActionLoadingId(null);
+        }
+    };
+
+    const togglePaymentStatus = async (invoice) => {
+        const isCurrentlyPaid = invoice.status === 'paid';
+        const newStatus = isCurrentlyPaid ? 'pending' : 'paid';
+        const paidAt = isCurrentlyPaid ? null : new Date().toISOString();
+
+        setActionLoadingId(invoice.id);
+
+        try {
+            const { error } = await supabase
+                .from('invoices')
+                .update({ status: newStatus, paid_at: paidAt })
+                .eq('id', invoice.id);
+
+            if (error) throw error;
+
+            setInvoices(prev => prev.map(inv =>
+                inv.id === invoice.id
+                    ? { ...inv, status: newStatus, paid_at: paidAt }
+                    : inv
+            ));
+
+        } catch (error) {
+            console.error('Error updating status:', error);
+            alert('Erreur lors de la mise à jour du statut.');
+        } finally {
+            setActionLoadingId(null);
+        }
+    };
+
     return (
         <div className="flex min-h-screen flex-col">
             <Navbar />
@@ -99,6 +159,7 @@ const Dashboard = () => {
                                             <th className="px-6 py-4 font-semibold uppercase tracking-wider">Client</th>
                                             <th className="px-6 py-4 font-semibold uppercase tracking-wider">Date</th>
                                             <th className="px-6 py-4 font-semibold uppercase tracking-wider text-right">Montant</th>
+                                            <th className="px-6 py-4 font-semibold uppercase tracking-wider text-center">Statut</th>
                                             <th className="px-6 py-4 font-semibold uppercase tracking-wider text-right">Actions</th>
                                         </tr>
                                     </thead>
@@ -115,13 +176,42 @@ const Dashboard = () => {
                                                     <td className="px-6 py-4 text-slate-600">{clientName}</td>
                                                     <td className="px-6 py-4 text-slate-600">{date}</td>
                                                     <td className="px-6 py-4 text-right font-medium text-slate-900">{formatEUR(total)}</td>
-                                                    <td className="px-6 py-4 text-right">
-                                                        <button
-                                                            onClick={() => handleDownload(invoice)}
-                                                            className="text-brand font-medium hover:underline"
-                                                        >
-                                                            Télécharger
-                                                        </button>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${invoice.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                                                            }`}>
+                                                            {invoice.status === 'paid' ? 'Payée' : 'En attente'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right space-x-3">
+                                                        {actionLoadingId === invoice.id ? (
+                                                            <span className="text-sm text-slate-400">En cours...</span>
+                                                        ) : (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => handleSendEmail(invoice)}
+                                                                    className="text-brand font-medium hover:underline text-sm"
+                                                                    title="Envoyer par email"
+                                                                >
+                                                                    Envoyer
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => togglePaymentStatus(invoice)}
+                                                                    className={`${invoice.status === 'paid' ? 'text-slate-500' : 'text-green-600'} font-medium hover:underline text-sm`}
+                                                                    title={invoice.status === 'paid' ? 'Marquer comme non payée' : 'Marquer comme payée'}
+                                                                >
+                                                                    {invoice.status === 'paid' ? 'Annuler' : 'Payée'}
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDownload(invoice)}
+                                                                    className="text-slate-600 font-medium hover:text-brand transition-colors"
+                                                                    title="Télécharger le PDF"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                                    </svg>
+                                                                </button>
+                                                            </>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             );

@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import { formatEUR, parseNumber } from './calculations';
 
-export const generatePDF = async (invoiceData, totals, isPro = false, brandName, domain, logoUrl = null, brandColor = null) => {
+export const generatePDF = async (invoiceData, totals, isPro = false, brandName, domain, logoUrl = null, brandColor = null, returnType = 'save') => {
     try {
         const doc = new jsPDF({
             orientation: 'portrait',
@@ -270,6 +270,12 @@ export const generatePDF = async (invoiceData, totals, isPro = false, brandName,
                 : `Créé gratuitement sur ${domain} — Passez en Pro pour supprimer ce message`;
 
             doc.text(watermarkText, pageWidth / 2, pageHeight - 10, { align: 'center' });
+        }
+
+        if (returnType === 'base64') {
+            // Return base64 string without the data URI prefix for the Resend API
+            const dataUri = doc.output('datauristring');
+            return dataUri.split(',')[1];
         }
 
         // Save PDF

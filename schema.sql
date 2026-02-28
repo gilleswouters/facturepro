@@ -68,6 +68,19 @@ create table public.invoices (
   -- Full snapshot of the generated invoice to prevent historical data changes if client/product changes
   data_snapshot jsonb not null, 
   
+  -- Status and Management
+  status text default 'pending' check (status in ('pending', 'paid', 'overdue')),
+  paid_at timestamp with time zone,
+  
+  -- Reminders
+  reminders_enabled boolean default true,
+  last_reminder_sent_at timestamp with time zone,
+  reminder_count integer default 0,
+  
+  -- Recurring
+  recurring_interval text check (recurring_interval in ('none', 'monthly', 'quarterly', 'yearly')),
+  next_generation_date date,
+  
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
