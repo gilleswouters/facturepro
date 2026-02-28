@@ -70,16 +70,50 @@ const Dashboard = () => {
 
         try {
             const data = invoice.invoice_data;
-            const doc = new (await import('jspdf')).default({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
+
+            // Generate the PDF as base64
+            const base64Pdf = await generatePDF(
+                data,
+                data.totals,
+                true,
+                brand.name,
+                brand.domain,
+                data.branding?.logo_url,
+                data.branding?.brand_color,
+                'base64'
+            );
+
+            if (!base64Pdf) {
+                throw new Error("Failed to generate PDF for email.");
+            }
+
+            // Send base64 to API
+            const response = await fetch('/api/send-invoice', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    to: clientEmail,
+                    invoiceNumber: data.details.invoiceNumber || invoice.invoice_number,
+                    clientName: data.client.companyName,
+                    sellerName: data.seller.companyName,
+                    replyTo: data.seller.email || user.email,
+                    pdfBase64: base64Pdf
+                }),
             });
 
-            // We need to pass the doc instance into a modified generatePDF, OR generatePDF needs to return the doc or base64. 
-            // For now, let's use a trick: the existing generatePDF calls doc.save().
-            // Let's refactor generatePDF to accept a returnType parameter. 
-            alert('L\'envoi d\'email sera finalisé après l\'adaptation du générateur PDF pour le format Base64.');
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || 'Erreur API Resend');
+            }
+
+            alert('Email envoyé avec succès !');
+
+            // Update local state and DB to reflect email sent
+            await supabase.from('invoices').update({
+                last_reminder_sent_at: new Date().toISOString()
+            }).eq('id', invoice.id);
 
         } catch (error) {
             console.error('Error sending email:', error);
