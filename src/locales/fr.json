@@ -90,6 +90,46 @@
         "error_generic": "Une erreur est survenue.",
         "loading": "Chargement..."
     },
+    "subscription": {
+        "title": "Passez à la vitesse supérieure avec Pro",
+        "subtitle": "Débloquez la génération illimitée de factures, sauvegardez vos données, et supprimez le filigrane {{brand}}.",
+        "badge_popular": "Populaire",
+        "plan_name": "Plan Pro",
+        "price": "9€",
+        "period": "/mois",
+        "feature_1": "PDFs illimités",
+        "feature_2": "Aucun filigrane {{brand}}",
+        "feature_3": "Profil, Clients et Articles sauvegardés",
+        "feature_4": "Historique des factures",
+        "already_pro": "Vous êtes déjà Pro !",
+        "subscribe_cta": "S'abonner maintenant",
+        "secure_payment": "Paiement sécurisé via Lemon Squeezy.",
+        "cancel_anytime": "Annulable à tout moment.",
+        "back_home": "← Retour à l'accueil"
+    },
+    "profile_page": {
+        "title": "Mon Profil",
+        "subtitle": "Gérez les informations de votre entreprise pour pré-remplir vos factures.",
+        "account": "Compte",
+        "current_plan": "Forfait Actuel",
+        "free_plan": "Gratuit",
+        "success_msg": "Profil mis à jour avec succès.",
+        "error_msg": "Une erreur est survenue lors de la mise à jour.",
+        "company_details": "Coordonnées de l'entreprise",
+        "company_name": "Nom de la société",
+        "company_name_placeholder": "Ex: FacturePro SRL",
+        "vat_number": "Numéro de TVA",
+        "address": "Adresse complète",
+        "address_placeholder": "Rue de l'Exemple 123\n1000 Bruxelles\nBelgique",
+        "payment_info": "Informations de paiement",
+        "iban_default": "Compte IBAN par défaut",
+        "notes_default": "Notes de pied de page par défaut",
+        "notes_hint": "Conditions de vente, délai, etc.",
+        "notes_placeholder": "Toutes nos factures sont payables au comptant...",
+        "saving": "Enregistrement...",
+        "save_btn": "Enregistrer les modifications",
+        "back_home": "← Retour à l'accueil"
+    },
     "footer": {
         "rights": "Tous droits réservés."
     }

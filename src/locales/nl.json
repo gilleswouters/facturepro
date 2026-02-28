@@ -90,6 +90,46 @@
         "error_generic": "Er is een fout opgetreden.",
         "loading": "Laden..."
     },
+    "subscription": {
+        "title": "Schakel een versnelling hoger met Pro",
+        "subtitle": "Ontgrendel onbeperkte factuurgeneratie, sla uw gegevens op en verwijder het {{brand}} watermerk.",
+        "badge_popular": "Populair",
+        "plan_name": "Pro Plan",
+        "price": "9€",
+        "period": "/maand",
+        "feature_1": "Onbeperkte PDF's",
+        "feature_2": "Geen {{brand}} watermerk",
+        "feature_3": "Profiel, Klanten en Artikelen opgeslagen",
+        "feature_4": "Factuurgeschiedenis",
+        "already_pro": "U bent al Pro!",
+        "subscribe_cta": "Nu abonneren",
+        "secure_payment": "Veilige betaling via Lemon Squeezy.",
+        "cancel_anytime": "Op elk moment opzegbaar.",
+        "back_home": "← Terug naar home"
+    },
+    "profile_page": {
+        "title": "Mijn Profiel",
+        "subtitle": "Beheer uw bedrijfsgegevens om uw facturen vooraf in te vullen.",
+        "account": "Account",
+        "current_plan": "Huidig Plan",
+        "free_plan": "Gratis",
+        "success_msg": "Profiel succesvol bijgewerkt.",
+        "error_msg": "Er is een fout opgetreden bij het bijwerken.",
+        "company_details": "Bedrijfsgegevens",
+        "company_name": "Bedrijfsnaam",
+        "company_name_placeholder": "Bijv: FactuurPro BV",
+        "vat_number": "BTW-nummer",
+        "address": "Volledig adres",
+        "address_placeholder": "Voorbeeldstraat 123\n1000 Brussel\nBelgië",
+        "payment_info": "Betalingsgegevens",
+        "iban_default": "Standaard IBAN-rekening",
+        "notes_default": "Standaard voettekst notities",
+        "notes_hint": "Verkoopsvoorwaarden, termijnen, enz.",
+        "notes_placeholder": "Al onze facturen zijn contant betaalbaar...",
+        "saving": "Opslaan...",
+        "save_btn": "Wijzigingen opslaan",
+        "back_home": "← Terug naar home"
+    },
     "footer": {
         "rights": "Alle rechten voorbehouden."
     }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -59,14 +60,14 @@ const Profile = () => {
 
             if (error) throw error;
 
-            setMessage({ text: 'Profil mis à jour avec succès.', type: 'success' });
+            setMessage({ text: t('profile_page.success_msg'), type: 'success' });
 
             // Clear success message after 3 seconds
             setTimeout(() => setMessage({ text: '', type: '' }), 3000);
 
         } catch (error) {
             console.error("Error updating profile:", error);
-            setMessage({ text: "Une erreur est survenue lors de la mise à jour.", type: 'error' });
+            setMessage({ text: t('profile_page.error_msg'), type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -79,10 +80,16 @@ const Profile = () => {
             <main className="flex-grow bg-surface py-12">
                 <div className="mx-auto max-w-[800px] px-4 md:px-8">
 
+                    <div className="mb-4">
+                        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-brand hover:text-brand-dark transition-colors">
+                            {t('profile_page.back_home')}
+                        </Link>
+                    </div>
+
                     <div className="mb-8 flex items-end justify-between">
                         <div>
-                            <h1 className="text-3xl font-serif font-bold text-slate-900">Mon Profil</h1>
-                            <p className="mt-2 text-slate-500">Gérez les informations de votre entreprise pour pré-remplir vos factures.</p>
+                            <h1 className="text-3xl font-serif font-bold text-slate-900">{t('profile_page.title')}</h1>
+                            <p className="mt-2 text-slate-500">{t('profile_page.subtitle')}</p>
                         </div>
                     </div>
 
@@ -91,14 +98,14 @@ const Profile = () => {
                         {/* Account Details Header */}
                         <div className="bg-slate-50 border-b border-border p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <div className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Compte</div>
+                                <div className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">{t('profile_page.account')}</div>
                                 <div className="font-medium text-slate-900">{user?.email}</div>
                             </div>
 
                             <div>
-                                <div className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Forfait Actuel</div>
+                                <div className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">{t('profile_page.current_plan')}</div>
                                 <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10 uppercase">
-                                    {profile?.subscription_status || 'Gratuit'}
+                                    {profile?.subscription_status === 'pro' ? 'Pro' : t('profile_page.free_plan')}
                                 </span>
                             </div>
                         </div>
@@ -113,23 +120,23 @@ const Profile = () => {
                             )}
 
                             <div className="space-y-4">
-                                <h3 className="text-lg font-bold text-slate-900">Coordonnées de l'entreprise</h3>
+                                <h3 className="text-lg font-bold text-slate-900">{t('profile_page.company_details')}</h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-1">
-                                        <label className="text-sm font-semibold text-slate-700">Nom de la société</label>
+                                        <label className="text-sm font-semibold text-slate-700">{t('profile_page.company_name')}</label>
                                         <input
                                             type="text"
                                             name="company_name"
                                             value={formData.company_name}
                                             onChange={handleChange}
                                             className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand transition-colors"
-                                            placeholder="Ex: FacturePro SRL"
+                                            placeholder={t('profile_page.company_name_placeholder')}
                                         />
                                     </div>
 
                                     <div className="space-y-1">
-                                        <label className="text-sm font-semibold text-slate-700">Numéro de TVA</label>
+                                        <label className="text-sm font-semibold text-slate-700">{t('profile_page.vat_number')}</label>
                                         <input
                                             type="text"
                                             name="vat_number"
@@ -142,14 +149,14 @@ const Profile = () => {
                                 </div>
 
                                 <div className="space-y-1">
-                                    <label className="text-sm font-semibold text-slate-700">Adresse complète</label>
+                                    <label className="text-sm font-semibold text-slate-700">{t('profile_page.address')}</label>
                                     <textarea
                                         name="address"
                                         value={formData.address}
                                         onChange={handleChange}
                                         rows="3"
                                         className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand transition-colors"
-                                        placeholder="Rue de l'Exemple 123&#10;1000 Bruxelles&#10;Belgique"
+                                        placeholder={t('profile_page.address_placeholder')}
                                     />
                                 </div>
                             </div>
@@ -157,10 +164,10 @@ const Profile = () => {
                             <hr className="border-border" />
 
                             <div className="space-y-4">
-                                <h3 className="text-lg font-bold text-slate-900">Informations de paiement</h3>
+                                <h3 className="text-lg font-bold text-slate-900">{t('profile_page.payment_info')}</h3>
 
                                 <div className="space-y-1">
-                                    <label className="text-sm font-semibold text-slate-700">Compte IBAN par défaut</label>
+                                    <label className="text-sm font-semibold text-slate-700">{t('profile_page.iban_default')}</label>
                                     <input
                                         type="text"
                                         name="iban"
@@ -173,8 +180,8 @@ const Profile = () => {
 
                                 <div className="space-y-1">
                                     <label className="text-sm font-semibold text-slate-700 flex justify-between">
-                                        <span>Notes de pied de page par défaut</span>
-                                        <span className="font-normal text-slate-400">Conditions de vente, délai, etc.</span>
+                                        <span>{t('profile_page.notes_default')}</span>
+                                        <span className="font-normal text-slate-400">{t('profile_page.notes_hint')}</span>
                                     </label>
                                     <textarea
                                         name="default_notes"
@@ -182,7 +189,7 @@ const Profile = () => {
                                         onChange={handleChange}
                                         rows="3"
                                         className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand transition-colors"
-                                        placeholder="Toutes nos factures sont payables au comptant..."
+                                        placeholder={t('profile_page.notes_placeholder')}
                                     />
                                 </div>
                             </div>
@@ -193,7 +200,7 @@ const Profile = () => {
                                     disabled={loading}
                                     className={`w-full md:w-auto rounded-xl bg-brand px-8 py-3 font-bold text-white shadow-lg shadow-brand/20 transition-all hover:bg-brand-dark ${loading ? 'opacity-70 cursor-wait' : 'hover:-translate-y-0.5'}`}
                                 >
-                                    {loading ? 'Enregistrement...' : 'Enregistrer les modifications'}
+                                    {loading ? t('profile_page.saving') : t('profile_page.save_btn')}
                                 </button>
                             </div>
 
