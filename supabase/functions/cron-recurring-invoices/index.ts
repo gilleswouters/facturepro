@@ -25,8 +25,8 @@ serve(async (req) => {
         for (const inv of recurringInvoices) {
             // 1. Calculate new dates
             let nextGenDate = new Date(inv.next_generation_date)
-            const oldIssueDate = new Date(inv.invoice_data?.details?.issueDate || inv.created_at)
-            const oldDueDate = new Date(inv.invoice_data?.details?.dueDate || inv.created_at)
+            const oldIssueDate = new Date(inv.data_snapshot?.details?.issueDate || inv.created_at)
+            const oldDueDate = new Date(inv.data_snapshot?.details?.dueDate || inv.created_at)
 
             let dueDays = Math.round((oldDueDate - oldIssueDate) / (1000 * 60 * 60 * 24))
             if (isNaN(dueDays) || dueDays < 0) dueDays = 30 // Default 30 days
@@ -59,7 +59,7 @@ serve(async (req) => {
                 newInvoiceNumber = originalNumber.substring(0, numberMatch.index) + String(parsedNum).padStart(numStr.length, '0')
             }
 
-            let newInvoiceData = { ...inv.invoice_data }
+            let newInvoiceData = { ...inv.data_snapshot }
             if (newInvoiceData.details) {
                 newInvoiceData.details.issueDate = newIssueDate.toISOString().split('T')[0]
                 newInvoiceData.details.dueDate = newDueDate.toISOString().split('T')[0]

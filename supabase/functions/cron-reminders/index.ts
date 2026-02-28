@@ -30,19 +30,19 @@ serve(async (req) => {
 
         // Filter by due date manually since it's inside JSON
         const overdues = invoices.filter(inv => {
-            const dueDate = inv.invoice_data?.details?.dueDate
+            const dueDate = inv.data_snapshot?.details?.dueDate
             return dueDate && dueDate < today
         })
 
         const results = []
 
         for (const inv of overdues) {
-            const clientEmail = inv.invoice_data?.client?.email
+            const clientEmail = inv.data_snapshot?.client?.email
             if (!clientEmail) continue
 
             const sellerName = inv.profiles?.company_name || 'FacturePro'
             const sellerEmail = inv.profiles?.email || 'noreply@factuurpro.be'
-            const clientName = inv.invoice_data?.client?.companyName || 'Client'
+            const clientName = inv.data_snapshot?.client?.companyName || 'Client'
             const invoiceNum = inv.invoice_number
 
             // Send Email via Resend

@@ -45,12 +45,12 @@ const Dashboard = () => {
     }, [user]);
 
     const handleDownload = (invoice) => {
-        if (!invoice.invoice_data) {
+        const data = invoice.data_snapshot || invoice.invoice_data;
+        if (!data) {
             alert(t('errors.generic'));
             return;
         }
 
-        const data = invoice.invoice_data;
         // Re-generate the PDF using the exact historical snapshot
         generatePDF(
             data,
@@ -64,7 +64,8 @@ const Dashboard = () => {
     };
 
     const handleSendEmail = async (invoice) => {
-        const clientEmail = invoice.invoice_data?.client?.email;
+        const data = invoice.data_snapshot || invoice.invoice_data || {};
+        const clientEmail = data.client?.email;
         if (!clientEmail) {
             alert('Veuillez ajouter une adresse email au client pour envoyer la facture.');
             return;
@@ -73,8 +74,6 @@ const Dashboard = () => {
         setActionLoadingId(invoice.id);
 
         try {
-            const data = invoice.invoice_data;
-
             // Generate the PDF as base64
             const base64Pdf = await generatePDF(
                 data,
@@ -158,9 +157,10 @@ const Dashboard = () => {
 
     const exportToCSV = () => {
         const filteredInvoices = invoices.filter(inv => {
+            const snap = inv.data_snapshot || inv.invoice_data || {};
             const searchMatch = !searchTerm ||
                 (inv.invoice_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-                (inv.invoice_data?.client?.companyName?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+                (snap.client?.companyName?.toLowerCase() || '').includes(searchTerm.toLowerCase());
             const statusMatch = filterStatus === 'all' || inv.status === filterStatus;
             return searchMatch && statusMatch;
         });
@@ -171,7 +171,7 @@ const Dashboard = () => {
         }
 
         const csvData = filteredInvoices.map(inv => {
-            const data = inv.invoice_data || {};
+            const data = inv.data_snapshot || inv.invoice_data || {};
             const clientName = data.client?.companyName || 'Client Inconnu';
             const clientVat = data.client?.vatNumber || '';
             const subtotal = data.totals?.subtotal || 0;
@@ -218,7 +218,8 @@ const Dashboard = () => {
             if (!acc[monthKey]) {
                 acc[monthKey] = { name: monthLabel, sortKey: monthKey, total: 0 };
             }
-            acc[monthKey].total += (inv.invoice_data?.totals?.grandTotal || 0);
+            const snap = inv.data_snapshot || inv.invoice_data || {};
+            acc[monthKey].total += (snap.totals?.grandTotal || 0);
             return acc;
         }, {})
     ).sort((a, b) => a.sortKey.localeCompare(b.sortKey));
@@ -341,16 +342,17 @@ const Dashboard = () => {
                                     <tbody className="divide-y divide-border">
                                         {invoices
                                             .filter(inv => {
+                                                const snap = inv.data_snapshot || inv.invoice_data || {};
                                                 const searchMatch = !searchTerm ||
                                                     (inv.invoice_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-                                                    (inv.invoice_data?.client?.companyName?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+                                                    (snap.client?.companyName?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
                                                 const statusMatch = filterStatus === 'all' || inv.status === filterStatus;
 
                                                 return searchMatch && statusMatch;
                                             })
                                             .map((invoice) => {
-                                                const data = invoice.invoice_data || {};
+                                                const data = invoice.data_snapshot || invoice.invoice_data || {};
                                                 const clientName = data.client?.companyName || 'Client inconnu';
                                                 const total = data.totals?.grandTotal || 0;
                                                 const date = new Date(invoice.created_at).toLocaleDateString('fr-BE');

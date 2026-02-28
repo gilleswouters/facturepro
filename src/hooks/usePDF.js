@@ -81,10 +81,13 @@ const usePDF = () => {
                 // Save to database for Pro users
                 try {
                     // 1. Save invoice history
-                    await supabase.from('invoices').insert({
+                    const invoicePayload = {
                         profile_id: user.id,
                         invoice_number: invoiceData.details.invoiceNumber || `PRO-${Date.now()}`,
-                        invoice_data: {
+                        client_name: invoiceData.client?.companyName || 'Client Inconnu',
+                        total_amount: totals.grandTotal || 0,
+                        issue_date: invoiceData.details.issueDate || new Date().toISOString().split('T')[0],
+                        data_snapshot: {
                             seller: invoiceData.seller,
                             client: invoiceData.client,
                             details: invoiceData.details,
@@ -96,7 +99,10 @@ const usePDF = () => {
                                 brand_color: profile?.brand_color || null
                             }
                         }
-                    });
+                    };
+
+                    const { error: invoiceError } = await supabase.from('invoices').insert(invoicePayload);
+                    if (invoiceError) throw invoiceError;
 
                     // 2. Auto-save client if company name is provided
                     if (invoiceData.client && invoiceData.client.companyName) {
@@ -144,6 +150,7 @@ const usePDF = () => {
                     }
                 } catch (dbError) {
                     console.error("Failed to save to history or catalogue", dbError);
+                    alert("Erreur lors de la sauvegarde de la facture dans l'historique : " + (dbError?.message || 'Erreur inconnue'));
                     // We don't block the download if the save fails, just log it.
                 }
             }
