@@ -31,6 +31,7 @@ const InvoiceDetails = ({ defaultValues, onChange }) => {
                         className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand transition-colors"
                     />
                     {errors.invoiceNumber && <span className="text-xs text-red-500">{errors.invoiceNumber.message}</span>}
+                    <p className="text-xs text-slate-400 mt-1">Format configurable dans Profil (Pro)</p>
                 </div>
 
                 {/* Issue Date */}

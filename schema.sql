@@ -23,6 +23,9 @@ create table public.profiles (
   lemon_customer_id text,
   lemon_subscription_id text,
   
+  -- Settings
+  invoice_number_format text default '{YEAR}-{NUM}',
+  
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );

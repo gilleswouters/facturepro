@@ -48,6 +48,14 @@ const useInvoice = (initialProfile = null) => {
                             address: initialProfile.address || '',
                             iban: initialProfile.iban || ''
                         },
+                        details: {
+                            ...prev.details,
+                            // Use profile format if available, otherwise fallback
+                            invoiceNumber: !prev.details.invoiceNumber ? (initialProfile.invoice_number_format || '{YEAR}-{NUM}')
+                                .replace('{YEAR}', new Date().getFullYear())
+                                .replace('{MONTH}', String(new Date().getMonth() + 1).padStart(2, '0'))
+                                .replace('{NUM}', '001') : prev.details.invoiceNumber
+                        },
                         notes: initialProfile.default_notes || prev.notes
                     };
                 }
@@ -60,7 +68,8 @@ const useInvoice = (initialProfile = null) => {
         initialProfile?.vat_number,
         initialProfile?.address,
         initialProfile?.iban,
-        initialProfile?.default_notes
+        initialProfile?.default_notes,
+        initialProfile?.invoice_number_format
     ]);
 
     // Derived totals
