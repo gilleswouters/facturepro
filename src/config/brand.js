@@ -1,5 +1,6 @@
-const brand = {
+const brands = {
   facturepro: {
+    id: 'facturepro',
     name: 'FacturePro',
     domain: 'facturepro.be',
     defaultLang: 'fr',
@@ -7,6 +8,7 @@ const brand = {
     crosslinkUrl: 'https://factuurpro.be',
   },
   factuurpro: {
+    id: 'factuurpro',
     name: 'FactuurPro',
     domain: 'factuurpro.be',
     defaultLang: 'nl',
@@ -15,4 +17,16 @@ const brand = {
   }
 };
 
-export default brand[import.meta.env.VITE_BRAND || 'facturepro'];
+const getBrand = () => {
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname.includes('factuurpro')) {
+      return brands.factuurpro;
+    }
+  }
+  // Fallback if running in SSR/tests or manually overridden
+  const envBrand = import.meta.env.VITE_BRAND || 'facturepro';
+  return brands[envBrand] || brands.facturepro;
+};
+
+export default getBrand();
